@@ -1,0 +1,169 @@
+    *, *::before, *::after {
+    box-sizing: border-box;
+}
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #f5f5f5;
+    padding: 20px;
+    overflow-x: hidden; /* Hide horizontal overflow */
+}
+
+form {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #2e2e2e;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+input[type="text"], select {
+    width: 95%;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: none;
+    background-color: #3e3e3e;
+    color: #f5f5f5;
+    border-radius: 5px;
+}
+
+input[type="submit"] {
+    padding: 10px 20px;
+    border: none;
+    background-color: #1f2020; /* Matte Pastel Green */
+    color: #e4e8eb; /* Dark Text */
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #506464;
+}
+
+pre {
+    width: 45%; /* 65% of the total screen width */
+    margin: 5px auto; /* centers the block element */
+    padding: 5px;
+    border-radius: 5px;
+    overflow: hidden; /* hide overflow, especially if inner content exceeds the width */
+}
+
+code {
+    display: block;
+    font-family: "Courier New", Courier, monospace;
+    background-color: #000;
+    color: #919191;
+    padding: 5px;
+    border-radius: 5px;
+    overflow-x: auto; /* For horizontal scrolling if content exceeds width */
+}
+
+pre, code {
+    max-width: 900px;
+    width: auto;   /* By default, but ensures it grows with content */
+    display: block; /* Ensures the elements are treated as block-level */
+    overflow-x: auto; /* Adds a horizontal scrollbar if content exceeds the max width */
+    margin: 0 auto; /* Centers the block if it's less than max-width */
+}
+
+a {
+    color: #89a9c9; /* Matte Pastel Blue */
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+#userInfo {
+    margin-bottom: 20px;
+    color: #e4e8eb;
+}
+
+#userInfo span {
+    color: #82cca1; /* Matte Pastel Green for highlight */
+    font-weight: bold;
+}
+
+/* Container styling for centering content */
+.container {
+    max-width: 1200px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Navbar Styling */
+#mainNav {
+    background-color: #1c1c1c; /* Slightly lighter than body for contrast */
+    box-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;             /* To ensure centering */
+    justify-content: center;  /* Horizontally centers children elements */
+    align-items: center;      /* Vertically centers children elements */
+}
+
+#mainNav h1 {
+    text-align: center;       /* Ensures the text is centered */
+    margin: 0;                /* Removes any default margins */
+}
+
+#logo {
+    font-weight: bold;
+    color: #e4e8eb;
+}
+
+#loadingMessage {
+    display: none; /* This is already set inline in your HTML, but you can also set it here for organization */
+    width: 100%; /* Takes full width of its container */
+    height: 100vh; /* Takes full viewport height */
+    position: fixed; /* Makes it overlay everything */
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.7); /* Optional: Dark semi-transparent background for more emphasis */
+    color: #fff; /* White text for readability */
+    
+    /* Flexbox properties for centering */
+    display: flex; 
+    justify-content: center; /* Horizontally center */
+    align-items: center; /* Vertically center */
+}
+
+.forms-container {
+    display: flex;              
+    justify-content: space-between; 
+    align-items: flex-start;       /* Ensures tops are aligned */
+    gap: 5px;                  
+}
+
+.left-form, .right-form {
+    flex: 1;                   
+    box-sizing: border-box;
+    padding: 0 10px;           
+}
+
+.center-results {
+    flex: 4;                   /* Give more space to center results */
+    max-width: 1100px;         /* You can adjust this to suit your needs */
+    margin: 0 auto;            /* Center the content */
+    padding-top: 50px;         /* Add padding to match the other columns, if needed */
+}
+
+#loadingMessage h2 {
+    margin-top: 0;             /* Remove margin from the top of the header */
+}
+
+/* Optional: Media query for smaller screens */
+@media (max-width: 768px) {
+    .forms-container {
+        flex-direction: column;
+    }
+    .left-form, .center-results, .right-form {
+        flex: 1;               
+    }
+    .center-results {
+        padding-top: 0;        /* Reset padding for mobile */
+    }
+}
