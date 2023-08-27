@@ -82,7 +82,7 @@ if (!isset($input) || empty($input)) {
 }
 
 // Check for other forbidden values that could exploit SSRF vulnerabilities.
-$forbiddenValues = ['localhost'];
+$forbiddenValues = ['localhost','2130706433'];
 foreach ($forbiddenValues as $value) {
     if (strpos($input, $value) !== false) {
         die("Invalid IP/Hostname.");
