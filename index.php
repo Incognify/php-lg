@@ -108,7 +108,7 @@ $userInfo = getUserInfo();
                         <span>🇺🇸 Las Vegas, NV</span> | <span>🇺🇸 New York, NY</span><br>
                         <span>🇳🇱 Naaldwijk, NL</span> | <span>🇱🇺 Roost, Bissen, LU</span>
                         <hr>
-                        <small>The above links are for demonstration purposes only.<br><br>© 2023 <a href="https://incognet.io">IncogNET LLC</a> | <a href="#">GitHub</a> | <a href="https://twitter.com/IncogNETLLC">Twitter</a> | <a href="https://bgp.tools/as/21030">BGP.TOOLS</a> |  v0.2</small></center>
+                        <small>The above links are for demonstration purposes only.<br><br>© 2023 <a href="https://incognet.io">IncogNET LLC</a> | <a href="#">GitHub</a> | <a href="https://twitter.com/IncogNETLLC">Twitter</a> | <a href="https://bgp.tools/as/210630">BGP.TOOLS</a> |  v0.2</small></center>
                     </div>
         </form>
     </div>
