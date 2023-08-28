@@ -1,13 +1,10 @@
 <?php
-// 08/27/2023 - Looking Glass script.
-// Still work to do, but this works as it is now.
-// Will refine later, probably.
-//
 // Set the below variables:
 $lg_location = "🇺🇸 Liberty Lake, WA"; // Where is this looking glass install located?
 $lg_ipv4 = "23.184.48.25"; // IPv4 address of your looking glass server
 $lg_ipv6 = "2602:fc24:18:a5d8::1"; // IPv6 address of your looking glass server
-$logo = "logo.svg"; //Logo or image to display above your other locations
+$logo = "logo.svg"; // Logo or image to display above your other locations
+$description = ""; // Add a description for the meta tags (Ex: Kansas City, Missouri Network Speed test and Looking Glass)
 
 // Get the IP / hostname of the website visitor
 function getUserInfo() {
@@ -19,7 +16,7 @@ function getUserInfo() {
     ];
 }
 $userInfo = getUserInfo();
-
+// Probably a better way of doing an ISP check but it works. Will refine it later.
 function getISP($ip) {
     $result = shell_exec("whois {$ip}");
     preg_match('/^OrgName: +(.+)$/m', $result, $matches);
@@ -38,7 +35,6 @@ $isp = getISP($userIP);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<?php echo ("$description");?>">
-    <meta name="keywords" content="<?php echo ("$keywords");?>">
     <meta name="author" content="IncogNET">
     <meta name="robots" content="index, follow">
     <link rel="preload" as="style" href="style.css">
@@ -91,7 +87,7 @@ $isp = getISP($userIP);
                         <span>🇺🇸 Las Vegas, NV</span> | <span>🇺🇸 New York, NY</span><br>
                         <span>🇳🇱 Naaldwijk, NL</span> | <span>🇱🇺 Roost, Bissen, LU</span>
                         <hr>
-                        <small>The above links are for demonstration purposes only.<br><br>© <?php echo date("Y"); ?> <a href="https://incognet.io" target="_blank">IncogNET LLC</a> | <a href="https://github.com/Incognify/php-lg/" target="_blank">GitHub</a> | <a href="https://twitter.com/IncogNETLLC" target="_blank">Twitter</a> | <a href="https://bgp.tools/as/210630" target="_blank">BGP.TOOLS</a> |  v1.2</small></center>
+                        <small>The above links are for demonstration purposes only.<br><br>© <?php echo date("Y"); ?> <a href="https://incognet.io" target="_blank">IncogNET LLC</a> | <a href="https://github.com/Incognify/php-lg/" target="_blank">GitHub</a> | <a href="https://twitter.com/IncogNETLLC" target="_blank">Twitter</a> | <a href="https://bgp.tools/as/210630" target="_blank">BGP.TOOLS</a> |  v1.3</small></center>
                     </div>
         </form>
     </div>
