@@ -21,13 +21,14 @@ if (time() - $_SESSION['first_request'] > $rate_limit_time) {
 }
 
 if ($_SESSION['request_count'] > $max_requests) {
-    die('Rate limit exceeded. Please wait.');
+    die("<pre><code>⚠️ ERROR: Rate limit exceeded. Please wait a moment and then try again.</pre></code>");
 }
 
 $_SESSION['request_count']++;
 
 // Ensure this script can run for a while, some commands might take time.
 set_time_limit(60);
+
 /**
  * Function to check if an IP address is within a specified subnet.
  * @param string $ip - The IP address to check.
@@ -106,13 +107,13 @@ $forbiddenSubnets = [
 
 $input = $_POST['ip'] ?? null;
 if (!isset($input) || empty($input)) {
-    die("IP/Hostname is required.");
+    die("<pre><code>⚠️ IP/Hostname is required.</pre></code>");
 }
 
 $forbiddenValues = ['localhost','2130706433'];
 foreach ($forbiddenValues as $value) {
     if (strpos($input, $value) !== false) {
-        die("Invalid IP/Hostname.");
+        die("<pre><code>⚠️ ERROR: Invalid IP address or Hostname.</pre></code>");
     }
 }
 
@@ -132,7 +133,7 @@ if (filter_var($input, FILTER_VALIDATE_IP)) {
     // It's a valid hostname, resolve to IP.
     $resolvedIP = get_resolved_ip($input);
     if (!$resolvedIP) {
-        die("Hostname did not resolve to an IP.");
+        die("<pre><code>⚠️ ERROR: Hostname did not resolve to an IP. Check that the spelling is correct.</pre></code>");
     }
     foreach ($forbiddenSubnets as $subnet) {
         if (ip_in_range($resolvedIP, $subnet)) {
@@ -144,7 +145,7 @@ if (filter_var($input, FILTER_VALIDATE_IP)) {
 }
 
 if ($forbidden) {
-    die('The IP address or subnet you have entered (or the resolved IP of the hostname) is not allowed. Matched subnet: ' . $matchedSubnet);
+    die("<pre><code>⚠️ ERROR: The IP address you have entered (or the resolved IP) is not allowed.</pre></code>");
 }
 
 $command = $_POST['command'] ?? null;

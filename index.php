@@ -19,6 +19,18 @@ function getUserInfo() {
     ];
 }
 $userInfo = getUserInfo();
+
+function getISP($ip) {
+    $result = shell_exec("whois {$ip}");
+    preg_match('/^OrgName: +(.+)$/m', $result, $matches);
+    
+    return $matches[1] ?? 'Unknown ISP';
+}
+
+// Get the connecting user's IP address
+$userIP = $_SERVER['REMOTE_ADDR'];
+$isp = getISP($userIP);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,14 +53,13 @@ $userInfo = getUserInfo();
     <div class="left-form">
         <form id="lookupForm">
             <div id="userInfo">
-                <p>This is a <b>beta</b> PHP driven looking glass tool. From the Looking Glass location shown below, you may test network connectivity to any publicly accessible IPv4 or IPv6 address or hostname that you enter.</p>
-                <hr>
                 <b>Looking Glass Location:</b> <span><?php echo($lg_location)?></span><br>
                 <b>Looking Glass IPv4:</b> <span><?php echo($lg_ipv4)?></span><br>
                 <b>Looking Glass IPv6:</b> <span><?php echo($lg_ipv6)?></span><br>
                 <hr>
                 <b>Your IP Address:</b> <span><?= $userInfo['ip'] ?></span><br>
-                <b>Your Hostname:</b> <span><?= $userInfo['hostname'] ?></span>
+                <b>Your Hostname:</b> <span><?= $userInfo['hostname'] ?></span><br>
+                <b>Your ISP:</b> <span><?php echo($isp)?></span>
                 <hr>
             </div>
         IPv4 / IPv6 Address or Hostname: <input type="text" name="ip" required>
@@ -80,7 +91,7 @@ $userInfo = getUserInfo();
                         <span>🇺🇸 Las Vegas, NV</span> | <span>🇺🇸 New York, NY</span><br>
                         <span>🇳🇱 Naaldwijk, NL</span> | <span>🇱🇺 Roost, Bissen, LU</span>
                         <hr>
-                        <small>The above links are for demonstration purposes only.<br><br>© <?php echo date("Y"); ?> <a href="https://incognet.io" target="_blank">IncogNET LLC</a> | <a href="https://github.com/Incognify/php-lg/" target="_blank">GitHub</a> | <a href="https://twitter.com/IncogNETLLC" target="_blank">Twitter</a> | <a href="https://bgp.tools/as/210630" target="_blank">BGP.TOOLS</a> |  v1.1</small></center>
+                        <small>The above links are for demonstration purposes only.<br><br>© <?php echo date("Y"); ?> <a href="https://incognet.io" target="_blank">IncogNET LLC</a> | <a href="https://github.com/Incognify/php-lg/" target="_blank">GitHub</a> | <a href="https://twitter.com/IncogNETLLC" target="_blank">Twitter</a> | <a href="https://bgp.tools/as/210630" target="_blank">BGP.TOOLS</a> |  v1.2</small></center>
                     </div>
         </form>
     </div>
