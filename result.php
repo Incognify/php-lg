@@ -1,5 +1,31 @@
 <?php
 header('Content-Type: text/plain; charset=utf-8');
+
+// Rate limiting stuff. You can also do this with nginx (see readme)
+session_start();
+
+// Set a time limit for session, for example 60 seconds
+$rate_limit_time = 60;
+// Maximum number of requests within the time limit
+$max_requests = 5;
+
+if (!isset($_SESSION['first_request'])) {
+    $_SESSION['first_request'] = time();
+    $_SESSION['request_count'] = 0;
+}
+
+if (time() - $_SESSION['first_request'] > $rate_limit_time) {
+    // Reset the counter if the time limit is exceeded
+    $_SESSION['first_request'] = time();
+    $_SESSION['request_count'] = 0;
+}
+
+if ($_SESSION['request_count'] > $max_requests) {
+    die('Rate limit exceeded. Please wait.');
+}
+
+$_SESSION['request_count']++;
+
 // Ensure this script can run for a while, some commands might take time.
 set_time_limit(60);
 /**
@@ -8,6 +34,7 @@ set_time_limit(60);
  * @param string $range - The subnet range.
  * @return bool - Returns true if IP is in the range, false otherwise.
  */
+
 // Check to see if an IP is within a specified subnet (Bogons)
 function ip_in_range($ip, $range) {
     // If range does not contain a CIDR, it's assumed to be a /32.
@@ -49,6 +76,11 @@ function ip_in_range($ip, $range) {
     return false;
 }
 
+function get_resolved_ip($hostname) {
+    $ip = gethostbyname($hostname);
+    return ($ip === $hostname) ? false : $ip;  // If IP is same as hostname, it didn't resolve.
+}
+
 // List of forbidden subnets to check against.
 $forbiddenSubnets = [
     '0.0.0.0/8',
@@ -72,16 +104,11 @@ $forbiddenSubnets = [
     'fe80::/10'
 ];
 
-
-// Get the raw IP or hostname from the POST request
 $input = $_POST['ip'] ?? null;
-
-// Basic validation for provided IP/hostname.
 if (!isset($input) || empty($input)) {
     die("IP/Hostname is required.");
 }
 
-// Check for other forbidden values that could exploit SSRF vulnerabilities.
 $forbiddenValues = ['localhost','2130706433'];
 foreach ($forbiddenValues as $value) {
     if (strpos($input, $value) !== false) {
@@ -89,58 +116,52 @@ foreach ($forbiddenValues as $value) {
     }
 }
 
-// If the input is a valid IP, check if it's in any forbidden subnets.
+$forbidden = false;
+$matchedSubnet = '';
+
 if (filter_var($input, FILTER_VALIDATE_IP)) {
-    $forbidden = false;
-    $matchedSubnet = '';  // for debugging purposes
+    // Check IP against forbidden subnets
     foreach ($forbiddenSubnets as $subnet) {
         if (ip_in_range($input, $subnet)) {
             $forbidden = true;
-            $matchedSubnet = $subnet;  // store the matched subnet for debug.
+            $matchedSubnet = $subnet;
             break;
         }
     }
-    if ($forbidden) {
-        die('The IP address or subnet you have entered is not allowed. Matched subnet: ' . $matchedSubnet);
+} elseif (filter_var($input, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
+    // It's a valid hostname, resolve to IP.
+    $resolvedIP = get_resolved_ip($input);
+    if (!$resolvedIP) {
+        die("Hostname did not resolve to an IP.");
+    }
+    foreach ($forbiddenSubnets as $subnet) {
+        if (ip_in_range($resolvedIP, $subnet)) {
+            $forbidden = true;
+            $matchedSubnet = $subnet;
+            break;
+        }
     }
 }
-
-// Then, continue with the rest of your logic to get the command and execute it.
-
-$command = $_POST['command'] ?? null;
-
 
 if ($forbidden) {
-    die('The IP address or subnet you have entered is not allowed. Matched subnet: ' . $matchedSubnet);
+    die('The IP address or subnet you have entered (or the resolved IP of the hostname) is not allowed. Matched subnet: ' . $matchedSubnet);
 }
 
-// Check for other forbidden values that could exploit SSRF vulnerabilities.
-$forbiddenValues = ['localhost'];
-foreach ($forbiddenValues as $value) {
-    if (strpos($input, $value) !== false) {
-        die("Invalid IP/Hostname.");
-    }
-}
-
-// List of allowed commands and their shell equivalents.
+$command = $_POST['command'] ?? null;
 $allowedCommands = [
-    'ping' => 'ping -c 20',
-    'ping6' => 'ping6 -c 20',
+    'ping' => 'ping -c 5',
+    'ping6' => 'ping6 -c 5',
     'traceroute' => 'traceroute',
     'traceroute6' => 'traceroute6',
-    'mtr' => 'mtr --report --report-cycles 10',
-    'mtr6' => 'mtr --report --report-cycles 10 -6'
+    'mtr' => 'mtr --report --report-cycles 2',
+    'mtr6' => 'mtr --report --report-cycles 2 -6'
 ];
 
-// Check if provided command is in allowed list.
 if (!isset($allowedCommands[$command])) {
     die('Invalid command.');
 }
 
-// Construct the final shell command, escaping the IP for security.
 $finalCommand = $allowedCommands[$command] . ' ' . escapeshellarg($input) . ' 2>&1';
-
-// Execute the command and display the output.
 $output = shell_exec($finalCommand);
 echo "<pre><code>" . htmlspecialchars($output) . "</code></pre>";
 ?>
