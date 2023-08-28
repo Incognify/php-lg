@@ -1,9 +1,12 @@
 <?php
 header('Content-Type: text/plain; charset=utf-8');
 
+$error_general = "<pre><code>⚠️ ERROR: The IP address you have entered (or the resolved IP) is not allowed.</pre></code>";
+$error_limit = "<pre><code>⚠️ ERROR: Rate limit exceeded. Please wait a moment and then try again.</pre></code>";
+$error_host = "<pre><code>⚠️ ERROR: Hostname did not resolve to an IP. Check that the spelling is correct.</pre></code>";
+
 // Rate limiting stuff. You can also do this with nginx (see readme)
 session_start();
-
 // Set a time limit for session, for example 60 seconds
 $rate_limit_time = 60;
 // Maximum number of requests within the time limit
@@ -21,7 +24,7 @@ if (time() - $_SESSION['first_request'] > $rate_limit_time) {
 }
 
 if ($_SESSION['request_count'] > $max_requests) {
-    die("<pre><code>⚠️ ERROR: Rate limit exceeded. Please wait a moment and then try again.</pre></code>");
+    die("$error_limit");
 }
 
 $_SESSION['request_count']++;
@@ -48,8 +51,23 @@ function ip_in_range($ip, $range) {
     // Checking for IPv6 addresses.
     if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
         // Convert IP and range to big integers for comparison.
-        $ip_dec = gmp_strval(gmp_init($ip, 16));
-        $range_dec = gmp_strval(gmp_init($range, 16));
+
+
+        $packedIp = inet_pton($ip);
+        if ($packedIp === false) {
+            die("$error_general");
+        }
+        $hex = bin2hex($packedIp);
+        $ip_dec = gmp_strval(gmp_init($hex, 16));
+
+
+        $packedRange = inet_pton($range);
+        if ($packedRange === false) {
+            die("$error_general");
+        }
+        $hexRange = bin2hex($packedRange);
+        $range_dec = gmp_strval(gmp_init($hexRange, 16));
+
 
         // Calculating wildcards and netmask for IPv6.
         $wildcard_dec = gmp_sub(gmp_pow(2, 128), 1);
@@ -107,13 +125,13 @@ $forbiddenSubnets = [
 
 $input = $_POST['ip'] ?? null;
 if (!isset($input) || empty($input)) {
-    die("<pre><code>⚠️ IP/Hostname is required.</pre></code>");
+    die("$error_general");
 }
 
 $forbiddenValues = ['localhost','2130706433'];
 foreach ($forbiddenValues as $value) {
     if (strpos($input, $value) !== false) {
-        die("<pre><code>⚠️ ERROR: Invalid IP address or Hostname.</pre></code>");
+        die("$error_general");
     }
 }
 
@@ -133,7 +151,7 @@ if (filter_var($input, FILTER_VALIDATE_IP)) {
     // It's a valid hostname, resolve to IP.
     $resolvedIP = get_resolved_ip($input);
     if (!$resolvedIP) {
-        die("<pre><code>⚠️ ERROR: Hostname did not resolve to an IP. Check that the spelling is correct.</pre></code>");
+        die("$error_host");
     }
     foreach ($forbiddenSubnets as $subnet) {
         if (ip_in_range($resolvedIP, $subnet)) {
@@ -145,7 +163,7 @@ if (filter_var($input, FILTER_VALIDATE_IP)) {
 }
 
 if ($forbidden) {
-    die("<pre><code>⚠️ ERROR: The IP address you have entered (or the resolved IP) is not allowed.</pre></code>");
+    die("$error_general");
 }
 
 $command = $_POST['command'] ?? null;
@@ -163,6 +181,7 @@ if (!isset($allowedCommands[$command])) {
 }
 
 $finalCommand = $allowedCommands[$command] . ' ' . escapeshellarg($input) . ' 2>&1';
+
 $output = shell_exec($finalCommand);
 echo "<pre><code>" . htmlspecialchars($output) . "</code></pre>";
 ?>
